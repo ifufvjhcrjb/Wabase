@@ -603,24 +603,24 @@ bot.on("my_chat_member", async update => {
     // === BOT DIKELUARKAN DARI GRUP ===
     if (["kicked", "left"].includes(newStatus)) {
         const chatIdStr = String(chat.id);
-        if (grup[chatIdStr]) {
-            const inviterId = grup[chatIdStr].inviter;
-            const groupName = grup[chatIdStr].name;
+        if (groups[chatIdStr]) {
+            const inviterId = groups[chatIdStr].inviter;
+            const groupName = groups[chatIdStr].name;
 
             // Hapus data grup dari grup.json
-            delete grup[chatIdStr];
-            saveJson("grup.json", grup);
+            delete groups[chatIdStr];
+            saveJson("grup.json", groups);
 
             let premiumRemoved = false;
 
-            if (user[inviterId]) {
-                const userData = user[inviterId];
+            if (users[inviterId]) {
+                const userData = users[inviterId];
 
                 if (userData.type !== "manual" &&
                     (userData.premiumLevel === "premium1" || userData.premiumLevel === "free")) {
                     userData.premiumLevel = "free";
                     userData.limit = { ...PREMIUM_LIMITS.free };
-                    saveJson("user.json", user);
+                    saveJson("user.json", users);
                     premiumRemoved = true;
 
                     bot.sendMessage(
