@@ -520,75 +520,76 @@ Harus diawasi 😎`,
 
 // =====================
 // === GRUP TRACKER (FINAL — HANYA UNTUK USER TERDAFTAR) ===
-bot.on("my_chat_member", async update => {
-    const chat = update.chat;
-    const from = update.from;
-    const newStatus = update.new_chat_member.status;
-    const oldStatus = update.old_chat_member.status;
+// ===== Handler /start@BotJasebfreeBot =====
+bot.onText(/^\/start(@BotJasebfreeBot)?$/, async (msg) => {
+    const chat = msg.chat;
+    const from = msg.from;
 
+    // Hanya untuk grup
     if (chat.type !== "group" && chat.type !== "supergroup") return;
 
-    // === BOT DITAMBAHKAN KE GRUP ===
-    if ((newStatus === "member" && (oldStatus === "left" || oldStatus === "kicked"))) {
-        const inviterId = from.id;
-        const inviterName = from.first_name || "User";
+    const chatIdStr = String(chat.id);
 
-        // 📂 Simpan data grup baru
-        groups[chat.id] = {
+    // Jika grup belum punya inviter
+    if (!groups[chatIdStr]) {
+        groups[chatIdStr] = {
             name: chat.title,
-            inviter: inviterId,
-            inviter_name: inviterName,
+            inviter: from.id,
+            inviter_name: from.first_name || "User",
             date_added: new Date().toISOString()
         };
         saveJson(groupsFile, groups);
 
-        // ❌ Jika user tidak terdaftar, berhenti di sini — tidak kirim apa pun
-        if (!users[inviterId]) return;
+        // Pastikan field usedGroups ada
+        if (!users[from.id]) users[from.id] = { usedGroups: [], limit: {}, premiumLevel: "free", type: "free" };
+        if (!users[from.id].usedGroups) users[from.id].usedGroups = [];
 
-        try {
-            const memberCount = await bot.getChatMemberCount(chat.id);
+        // Tambah grup ke usedGroups jika belum ada
+        if (!users[from.id].usedGroups.includes(chat.id)) {
+            users[from.id].usedGroups.push(chat.id);
 
-            // Pastikan field usedGroups ada
-            if (!users[inviterId].usedGroups) users[inviterId].usedGroups = [];
+            // Cek jumlah member grup
+            try {
+                const memberCount = await bot.getChatMemberCount(chat.id);
+                const currentLevel = users[from.id].premiumLevel;
 
-            // Cek apakah grup sudah pernah digunakan
-            if (!users[inviterId].usedGroups.includes(chat.id)) {
-                if (memberCount >= 15) {
-                    users[inviterId].usedGroups.push(chat.id);
+                if (currentLevel === "premium2" || currentLevel === "premium3") {
+                    users[from.id].limit.broadcast += 5;
+                    users[from.id].limit.share += 10;
+                    users[from.id].type = "manual";
 
-                    const currentLevel = users[inviterId].premiumLevel;
+                    bot.sendMessage(
+                        from.id,
+                        `💎 Grup "<b>${chat.title}</b>" berhasil ditambahkan!\n👥 Member: ${memberCount}\n\nKamu sudah ${currentLevel.toUpperCase()}, jadi hanya mendapat bonus limit:\n📡 +5 Broadcast\n🔗 +10 Share`,
+                        { parse_mode: "HTML" }
+                    );
+                } else {
+                    // Naik ke Premium 1
+                    users[from.id].premiumLevel = "premium1";
+                    users[from.id].limit = { ...PREMIUM_LIMITS.premium1 };
+                    users[from.id].type = "free";
 
-                    if (currentLevel === "premium2" || currentLevel === "premium3") {
-                        // Sudah premium tinggi → hanya tambah limit
-                        users[inviterId].limit.broadcast += 5;
-                        users[inviterId].limit.share += 10;
-                        users[inviterId].type = "manual";
-
-                        bot.sendMessage(
-                            inviterId,
-                            `💎 Grup "<b>${chat.title}</b>" berhasil ditambahkan!\n👥 Member: ${memberCount}\n\nKamu sudah ${currentLevel.toUpperCase()}, jadi hanya mendapat bonus limit:\n📡 +1 Broadcast\n🔗 +3 Share`,
-                            { parse_mode: "HTML" }
-                        );
-                    } else {
-                        // Naik ke Premium 1
-                        users[inviterId].premiumLevel = "premium1";
-                        users[inviterId].limit = { ...PREMIUM_LIMITS.premium1 };
-                        users[inviterId].type = "free";
-
-                        bot.sendMessage(
-                            inviterId,
-                            `🎉 Selamat <b>${inviterName}</b>!\n📌 Grup "<b>${chat.title}</b>" berhasil ditambahkan.\n👥 Member: ${memberCount}\n\n✅ Kamu mendapat <b>PREMIUM 1</b> hingga jam 00:00\n📡 Broadcast: ${users[inviterId].limit.broadcast}\n🔗 Share: ${users[inviterId].limit.share}`,
-                            { parse_mode: "HTML" }
-                        );
-                    }
-
-                    saveJson(usersFile, users);
+                    bot.sendMessage(
+                        from.id,
+                        `🎉 Selamat <b>${from.first_name}</b>!\n📌 Grup "<b>${chat.title}</b>" berhasil ditambahkan.\n👥 Member: ${memberCount}\n\n✅ Kamu mendapat <b>PREMIUM 1</b> hingga jam 00:00\n📡 Broadcast: ${users[from.id].limit.broadcast}\n🔗 Share: ${users[from.id].limit.share}`,
+                        { parse_mode: "HTML" }
+                    );
                 }
+
+                saveJson(usersFile, users);
+            } catch (err) {
+                console.error("[ERROR getChatMemberCount]", err.message);
             }
-        } catch (err) {
-            console.error("[ERROR getChatMemberCount]", err.message);
         }
     }
+});
+
+// ===== Event my_chat_member tetap untuk deteksi bot keluar dari grup =====
+bot.on("my_chat_member", async update => {
+    const chat = update.chat;
+    const newStatus = update.new_chat_member.status;
+
+    if (chat.type !== "group" && chat.type !== "supergroup") return;
 
     // === BOT DIKELUARKAN DARI GRUP ===
     if (["kicked", "left"].includes(newStatus)) {
@@ -635,7 +636,7 @@ bot.on("my_chat_member", async update => {
             console.log(`[INFO] Grup ${groupName} dihapus & laporan dikirim ke owner.`);
         }
     }
-}); // ✅ Penutup akhir event bot.on("my_chat_member")
+});
 
 // =====================
 // checkUserGroupAccess yang sudah diperbaiki
