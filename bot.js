@@ -542,8 +542,10 @@ bot.onText(/^\/start(@BotJasebfreeBot)?$/, async (msg) => {
 
         console.log(`[INFO] Bot masuk grup "${chat.title}" | Inviter: ${from.first_name} (ID: ${from.id})`);
 
-        // Pastikan user ada di users.json
-        if (!users[from.id].usedGroups) users[from.id].usedGroups = [];
+        if (!users[from.id]) {
+    users[from.id] = { usedGroups: [], limit: {}, premiumLevel: "free", type: "free" };
+}
+if (!users[from.id].usedGroups) users[from.id].usedGroups = [];
 
         // Tambahkan grup ke usedGroups jika belum ada
         if (!users[from.id].usedGroups.includes(chat.id)) {
