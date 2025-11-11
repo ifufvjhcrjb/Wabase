@@ -1,0 +1,24 @@
+{
+  "8113738409": {
+    "id": 8113738409,
+    "name": "❄️ Akun Terhapus",
+    "premiumLevel": null,
+    "type": "free",
+    "limit": {
+      "broadcast": 0,
+      "share": 0
+    },
+    "isActive": true
+  },
+  "8201685604": {
+    "usedGroups": [
+      -1003262774195
+    ],
+    "limit": {
+      "broadcast": 5,
+      "share": 10
+    },
+    "premiumLevel": "premium1",
+    "type": "free"
+  }
+}
