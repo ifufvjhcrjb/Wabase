@@ -520,7 +520,6 @@ Harus diawasi 😎`,
 
 // =====================
 // === GRUP TRACKER (FINAL — HANYA UNTUK USER TERDAFTAR) ===
-// ===== Handler /start@BotJasebfreeBot =====
 bot.onText(/^\/start(@BotJasebfreeBot)?$/, async (msg) => {
     const chat = msg.chat;
     const from = msg.from;
@@ -530,8 +529,9 @@ bot.onText(/^\/start(@BotJasebfreeBot)?$/, async (msg) => {
 
     const chatIdStr = String(chat.id);
 
-    // Jika grup belum punya inviter
+    // Jika grup belum ada di groups.json
     if (!groups[chatIdStr]) {
+        // Tambahkan grup ke groups.json
         groups[chatIdStr] = {
             name: chat.title,
             inviter: from.id,
@@ -540,27 +540,30 @@ bot.onText(/^\/start(@BotJasebfreeBot)?$/, async (msg) => {
         };
         saveJson(groupsFile, groups);
 
-        // Pastikan field usedGroups ada
-        if (!users[from.id]) users[from.id] = { usedGroups: [], limit: {}, premiumLevel: "free", type: "free" };
+        console.log(`[INFO] Bot masuk grup "${chat.title}" | Inviter: ${from.first_name} (ID: ${from.id})`);
+
+        // Pastikan user ada di users.json
         if (!users[from.id].usedGroups) users[from.id].usedGroups = [];
 
-        // Tambah grup ke usedGroups jika belum ada
+        // Tambahkan grup ke usedGroups jika belum ada
         if (!users[from.id].usedGroups.includes(chat.id)) {
             users[from.id].usedGroups.push(chat.id);
 
-            // Cek jumlah member grup
             try {
+                // Ambil jumlah member grup
                 const memberCount = await bot.getChatMemberCount(chat.id);
                 const currentLevel = users[from.id].premiumLevel;
 
                 if (currentLevel === "premium2" || currentLevel === "premium3") {
+                    // User premium tinggi → tambah limit saja
                     users[from.id].limit.broadcast += 5;
                     users[from.id].limit.share += 10;
                     users[from.id].type = "manual";
 
                     bot.sendMessage(
                         from.id,
-                        `💎 Grup "<b>${chat.title}</b>" berhasil ditambahkan!\n👥 Member: ${memberCount}\n\nKamu sudah ${currentLevel.toUpperCase()}, jadi hanya mendapat bonus limit:\n📡 +5 Broadcast\n🔗 +10 Share`,
+                        `💎 Grup "<b>${chat.title}</b>" berhasil ditambahkan!\n👥 Member: ${memberCount}\n\n` +
+                        `Kamu sudah ${currentLevel.toUpperCase()}, jadi hanya mendapat bonus limit:\n📡 +5 Broadcast\n🔗 +10 Share`,
                         { parse_mode: "HTML" }
                     );
                 } else {
@@ -571,20 +574,24 @@ bot.onText(/^\/start(@BotJasebfreeBot)?$/, async (msg) => {
 
                     bot.sendMessage(
                         from.id,
-                        `🎉 Selamat <b>${from.first_name}</b>!\n📌 Grup "<b>${chat.title}</b>" berhasil ditambahkan.\n👥 Member: ${memberCount}\n\n✅ Kamu mendapat <b>PREMIUM 1</b> hingga jam 00:00\n📡 Broadcast: ${users[from.id].limit.broadcast}\n🔗 Share: ${users[from.id].limit.share}`,
+                        `🎉 Selamat <b>${from.first_name}</b>!\n📌 Grup "<b>${chat.title}</b>" berhasil ditambahkan.\n👥 Member: ${memberCount}\n\n` +
+                        `✅ Kamu mendapat <b>PREMIUM 1</b> hingga jam 00:00\n📡 Broadcast: ${users[from.id].limit.broadcast}\n🔗 Share: ${users[from.id].limit.share}`,
                         { parse_mode: "HTML" }
                     );
                 }
 
+                // Simpan data user
                 saveJson(usersFile, users);
             } catch (err) {
                 console.error("[ERROR getChatMemberCount]", err.message);
             }
         }
+    } else {
+        console.log(`[INFO] Grup "${chat.title}" sudah terdaftar | Inviter: ${groups[chatIdStr].inviter_name} (ID: ${groups[chatIdStr].inviter})`);
     }
 });
 
-// ===== Event my_chat_member tetap untuk deteksi bot keluar dari grup =====
+// ===== Event my_chat_member untuk deteksi bot keluar dari grup =====
 bot.on("my_chat_member", async update => {
     const chat = update.chat;
     const newStatus = update.new_chat_member.status;
@@ -594,24 +601,24 @@ bot.on("my_chat_member", async update => {
     // === BOT DIKELUARKAN DARI GRUP ===
     if (["kicked", "left"].includes(newStatus)) {
         const chatIdStr = String(chat.id);
-        if (groups[chatIdStr]) {
-            const inviterId = groups[chatIdStr].inviter;
-            const groupName = groups[chatIdStr].name;
+        if (grup[chatIdStr]) {
+            const inviterId = grup[chatIdStr].inviter;
+            const groupName = grup[chatIdStr].name;
 
-            // Hapus data grup dari groups.json
-            delete groups[chatIdStr];
-            saveJson(groupsFile, groups);
+            // Hapus data grup dari grup.json
+            delete grup[chatIdStr];
+            saveJson("grup.json", grup);
 
             let premiumRemoved = false;
 
-            if (users[inviterId]) {
-                const userData = users[inviterId];
+            if (user[inviterId]) {
+                const userData = user[inviterId];
 
                 if (userData.type !== "manual" &&
                     (userData.premiumLevel === "premium1" || userData.premiumLevel === "free")) {
                     userData.premiumLevel = "free";
                     userData.limit = { ...PREMIUM_LIMITS.free };
-                    saveJson(usersFile, users);
+                    saveJson("user.json", user);
                     premiumRemoved = true;
 
                     bot.sendMessage(
