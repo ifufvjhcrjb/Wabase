@@ -748,7 +748,7 @@ bot.onText(/\/delprem (\d+)/, (msg, match) => {
 });
 
 bot.onText(/\/stop/, msg => {
-    if (msg.chat.id !== OWNER_ID) {
+    if (String(msg.chat.id) !== OWNER_ID) {
         return bot.sendMessage(msg.chat.id, "🚫 Akses ditolak!");
     }
 
@@ -756,7 +756,7 @@ bot.onText(/\/stop/, msg => {
     bot.sendMessage(msg.chat.id, `🛑 Bot dimatikan manual oleh owner pada ${waktu}`)
         .then(() => {
             console.log(`🛑 Bot dihentikan oleh owner pada ${waktu}`);
-            process.exit(0); // keluar dengan kode 1
+            process.exit(0);
         });
 });
 
