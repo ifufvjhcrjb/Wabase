@@ -1,7 +1,41 @@
 {
+  "136817688": {
+    "usedGroups": [
+      -1003191308479
+    ],
+    "limit": {
+      "broadcast": 0,
+      "share": 0
+    },
+    "premiumLevel": null,
+    "type": "free"
+  },
   "8113738409": {
     "id": 8113738409,
     "name": "❄️ Akun Terhapus",
+    "premiumLevel": "premium2",
+    "type": "manual",
+    "limit": {
+      "broadcast": 10,
+      "share": 20
+    },
+    "isActive": true,
+    "lastBroadcast": 1762864262745
+  },
+  "8201685604": {
+    "usedGroups": [
+      -1003262774195
+    ],
+    "limit": {
+      "broadcast": 0,
+      "share": 0
+    },
+    "premiumLevel": null,
+    "type": "free"
+  },
+  "8317316796": {
+    "id": 8317316796,
+    "name": "Raraw",
     "premiumLevel": null,
     "type": "free",
     "limit": {
@@ -10,15 +44,70 @@
     },
     "isActive": true
   },
-  "8201685604": {
-    "usedGroups": [
-      -1003262774195
-    ],
+  "7635804244": {
+    "id": 7635804244,
+    "name": "𝙔𝘼𝙣𝙯𝙯𝙭𝙮𝙕𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭𑲭[NODE 20]",
+    "premiumLevel": null,
+    "type": "free",
     "limit": {
-      "broadcast": 5,
-      "share": 10
+      "broadcast": 0,
+      "share": 0
     },
-    "premiumLevel": "premium1",
-    "type": "free"
+    "isActive": true
+  },
+  "7476689521": {
+    "id": 7476689521,
+    "name": "Putri",
+    "premiumLevel": null,
+    "type": "free",
+    "limit": {
+      "broadcast": 0,
+      "share": 0
+    },
+    "isActive": true
+  },
+  "8291358325": {
+    "id": 8291358325,
+    "name": "Re¡zyy",
+    "premiumLevel": null,
+    "type": "free",
+    "limit": {
+      "broadcast": 0,
+      "share": 0
+    },
+    "isActive": true
+  },
+  "8385450978": {
+    "id": 8385450978,
+    "name": "Force",
+    "premiumLevel": null,
+    "type": "free",
+    "limit": {
+      "broadcast": 0,
+      "share": 0
+    },
+    "isActive": true
+  },
+  "8264765821": {
+    "id": 8264765821,
+    "name": "DEADLYSIN",
+    "premiumLevel": null,
+    "type": "free",
+    "limit": {
+      "broadcast": 0,
+      "share": 0
+    },
+    "isActive": true
+  },
+  "8423002416": {
+    "id": 8423002416,
+    "name": "𝗣𝗢𝗞𝗘𝗠𝗢𝗡 袋妖怪",
+    "premiumLevel": null,
+    "type": "free",
+    "limit": {
+      "broadcast": 0,
+      "share": 0
+    },
+    "isActive": true
   }
 }
